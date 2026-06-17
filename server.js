@@ -119,6 +119,159 @@ app.delete("/categories/:id", (req, res) => {
     });
 });
 
+app.get("/products", (_, res) => {
+
+    const sql = "SELECT * FROM product";
+
+    query(sql, (err, result) => {
+
+        if (err) {
+            return res.status(500).json(err);
+        }
+
+        res.json(result);
+    });
+});
+
+app.get("/products/:id", (req, res) => {
+
+    const id = req.params.id;
+
+    const sql = `
+        SELECT *
+        FROM product
+        WHERE product_id = ?
+    `;
+
+    query(sql, [id], (err, result) => {
+
+        if (err) {
+            return res.status(500).json(err);
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({
+                message: "Product not found"
+            });
+        }
+
+        res.json(result[0]);
+    });
+});
+
+app.post("/products", (req, res) => {
+
+    const {
+        title,
+        description,
+        stock,
+        price,
+        image,
+        category_id
+    } = req.body;
+
+    const sql = `
+        INSERT INTO product
+        (
+            title,
+            description,
+            stock,
+            price,
+            image,
+            category_id
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    query(
+        sql,
+        [title, description, stock, price, image, category_id],
+        (err, result) => {
+
+            if (err) {
+                return res.status(500).json(err);
+            }
+
+            res.status(201).json({
+                message: "Product created",
+                id: result.insertId
+            });
+        }
+    );
+});
+
+app.patch("/products/:id", (req, res) => {
+
+    const id = req.params.id;
+
+    const {
+        title,
+        description,
+        stock,
+        price,
+        image,
+        category_id
+    } = req.body;
+
+    const sql = `
+        UPDATE product
+        SET
+            title = ?,
+            description = ?,
+            stock = ?,
+            price = ?,
+            image = ?,
+            category_id = ?
+        WHERE product_id = ?
+    `;
+
+    query(
+        sql,
+        [
+            title,
+            description,
+            stock,
+            price,
+            image,
+            category_id,
+            id
+        ],
+        (err) => {
+
+            if (err) {
+                return res.status(500).json(err);
+            }
+
+            res.json({
+                message: "Product updated"
+            });
+        }
+    );
+});
+
+app.delete("/products/:id", (req, res) => {
+
+    const id = req.params.id;
+
+    const sql = `
+        DELETE FROM product
+        WHERE product_id = ?
+    `;
+
+    query(sql, [id], (err) => {
+
+        if (err) {
+            return res.status(500).json(err);
+        }
+
+        res.json({
+            message: "Product deleted"
+        });
+    });
+});
+
+
+
 app.get("/test", (req, res) => {
     res.send("Works!");
 });
