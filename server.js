@@ -1,12 +1,12 @@
-const db = require("./db");
-
 const express = require("express");
 const cors = require("cors");
+const { json } = require("express");
+const { query } = require("./db");
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(json());
 
 const PORT = 3000;
 
@@ -18,7 +18,7 @@ app.get("/categories", (req, res) => {
 
     const sql = "SELECT * FROM category";
 
-    db.query(sql, (err, result) => {
+    query(sql, (err, result) => {
 
         if (err) {
             return res.status(500).json(err);
